@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZiliaokuDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.ziliaoku_uuid_number as ziliaokuUuidNumber
+        ,a.ziliaoku_name as ziliaokuName
+        ,a.ziliaoku_types as ziliaokuTypes
+        ,a.ziliaoku_file as ziliaokuFile
+        ,a.ziliaoku_content as ziliaokuContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZiliaokuView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM ziliaoku  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.ziliaokuUuidNumber != '' and params.ziliaokuUuidNumber != null and params.ziliaokuUuidNumber != 'null' ">
+                and a.ziliaoku_uuid_number like CONCAT('%',#{params.ziliaokuUuidNumber},'%')
+            </if>
+            <if test=" params.ziliaokuName != '' and params.ziliaokuName != null and params.ziliaokuName != 'null' ">
+                and a.ziliaoku_name like CONCAT('%',#{params.ziliaokuName},'%')
+            </if>
+            <if test="params.ziliaokuTypes != null and params.ziliaokuTypes != ''">
+                and a.ziliaoku_types = #{params.ziliaokuTypes}
+            </if>
+            <if test=" params.ziliaokuContent != '' and params.ziliaokuContent != null and params.ziliaokuContent != 'null' ">
+                and a.ziliaoku_content like CONCAT('%',#{params.ziliaokuContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

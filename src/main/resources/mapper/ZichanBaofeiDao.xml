@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZichanBaofeiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yuangong_id as yuangongId
+        ,a.zichan_id as zichanId
+        ,a.zichan_baofei_uuid_number as zichanBaofeiUuidNumber
+        ,a.zichan_baofei_types as zichanBaofeiTypes
+        ,a.zichan_baofei_kucun_number as zichanBaofeiKucunNumber
+        ,a.zichan_baofei_content as zichanBaofeiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZichanBaofeiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,yuangong.yuangong_uuid_number as yuangongUuidNumber
+        ,yuangong.yuangong_name as yuangongName
+        ,yuangong.yuangong_phone as yuangongPhone
+        ,yuangong.yuangong_id_number as yuangongIdNumber
+        ,yuangong.yuangong_photo as yuangongPhoto
+        ,yuangong.bumen_types as bumenTypes
+        ,yuangong.zhiwei_types as zhiweiTypes
+        ,yuangong.yuangong_email as yuangongEmail
+        ,yuangong.jinyong_types as jinyongTypes
+        ,zichan.zichan_uuid_number as zichanUuidNumber
+        ,zichan.zichan_name as zichanName
+        ,zichan.zichan_photo as zichanPhoto
+        ,zichan.zichan_danwei as zichanDanwei
+        ,zichan.zichan_types as zichanTypes
+        ,zichan.zichan_kucun_number as zichanKucunNumber
+        ,zichan.zichan_yuzhi as zichanYuzhi
+        ,zichan.zichan_content as zichanContent
+
+        FROM zichan_baofei  a
+        left JOIN yuangong yuangong ON a.yuangong_id = yuangong.id
+        left JOIN zichan zichan ON a.zichan_id = zichan.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yuangongId != null and params.yuangongId != ''">
+                and (
+                    a.yuangong_id = #{params.yuangongId}
+                )
+            </if>
+            <if test="params.zichanId != null and params.zichanId != ''">
+                and (
+                    a.zichan_id = #{params.zichanId}
+                )
+            </if>
+            <if test=" params.zichanBaofeiUuidNumber != '' and params.zichanBaofeiUuidNumber != null and params.zichanBaofeiUuidNumber != 'null' ">
+                and a.zichan_baofei_uuid_number like CONCAT('%',#{params.zichanBaofeiUuidNumber},'%')
+            </if>
+            <if test="params.zichanBaofeiTypes != null and params.zichanBaofeiTypes != ''">
+                and a.zichan_baofei_types = #{params.zichanBaofeiTypes}
+            </if>
+            <if test="params.zichanBaofeiKucunNumberStart != null and params.zichanBaofeiKucunNumberStart != ''">
+                <![CDATA[  and a.zichan_baofei_kucun_number >= #{params.zichanBaofeiKucunNumberStart}   ]]>
+            </if>
+            <if test="params.zichanBaofeiKucunNumberEnd != null and params.zichanBaofeiKucunNumberEnd != ''">
+                <![CDATA[  and a.zichan_baofei_kucun_number <= #{params.zichanBaofeiKucunNumberEnd}   ]]>
+            </if>
+             <if test="params.zichanBaofeiKucunNumber != null and params.zichanBaofeiKucunNumber != ''">
+                and a.zichan_baofei_kucun_number = #{params.zichanBaofeiKucunNumber}
+             </if>
+            <if test=" params.zichanBaofeiContent != '' and params.zichanBaofeiContent != null and params.zichanBaofeiContent != 'null' ">
+                and a.zichan_baofei_content like CONCAT('%',#{params.zichanBaofeiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+
+                <!-- 判断员工的id不为空 -->
+            <if test=" params.yuangongIdNotNull != '' and params.yuangongIdNotNull != null and params.yuangongIdNotNull != 'null' ">
+                and a.yuangong_id IS NOT NULL
+            </if>
+            <if test=" params.yuangongUuidNumber != '' and params.yuangongUuidNumber != null and params.yuangongUuidNumber != 'null' ">
+                and yuangong.yuangong_uuid_number like CONCAT('%',#{params.yuangongUuidNumber},'%')
+            </if>
+            <if test=" params.yuangongName != '' and params.yuangongName != null and params.yuangongName != 'null' ">
+                and yuangong.yuangong_name like CONCAT('%',#{params.yuangongName},'%')
+            </if>
+            <if test=" params.yuangongPhone != '' and params.yuangongPhone != null and params.yuangongPhone != 'null' ">
+                and yuangong.yuangong_phone like CONCAT('%',#{params.yuangongPhone},'%')
+            </if>
+            <if test=" params.yuangongIdNumber != '' and params.yuangongIdNumber != null and params.yuangongIdNumber != 'null' ">
+                and yuangong.yuangong_id_number like CONCAT('%',#{params.yuangongIdNumber},'%')
+            </if>
+            <if test="params.bumenTypes != null  and params.bumenTypes != ''">
+                and yuangong.bumen_types = #{params.bumenTypes}
+            </if>
+
+            <if test="params.zhiweiTypes != null  and params.zhiweiTypes != ''">
+                and yuangong.zhiwei_types = #{params.zhiweiTypes}
+            </if>
+
+            <if test=" params.yuangongEmail != '' and params.yuangongEmail != null and params.yuangongEmail != 'null' ">
+                and yuangong.yuangong_email like CONCAT('%',#{params.yuangongEmail},'%')
+            </if>
+            <if test="params.jinyongTypes != null  and params.jinyongTypes != ''">
+                and yuangong.jinyong_types = #{params.jinyongTypes}
+            </if>
+
+                <!-- 判断资产的id不为空 -->
+            <if test=" params.zichanIdNotNull != '' and params.zichanIdNotNull != null and params.zichanIdNotNull != 'null' ">
+                and a.zichan_id IS NOT NULL
+            </if>
+            <if test=" params.zichanUuidNumber != '' and params.zichanUuidNumber != null and params.zichanUuidNumber != 'null' ">
+                and zichan.zichan_uuid_number like CONCAT('%',#{params.zichanUuidNumber},'%')
+            </if>
+            <if test=" params.zichanName != '' and params.zichanName != null and params.zichanName != 'null' ">
+                and zichan.zichan_name like CONCAT('%',#{params.zichanName},'%')
+            </if>
+            <if test=" params.zichanDanwei != '' and params.zichanDanwei != null and params.zichanDanwei != 'null' ">
+                and zichan.zichan_danwei like CONCAT('%',#{params.zichanDanwei},'%')
+            </if>
+            <if test="params.zichanTypes != null  and params.zichanTypes != ''">
+                and zichan.zichan_types = #{params.zichanTypes}
+            </if>
+
+            <if test="params.zichanKucunNumberStart != null  and params.zichanKucunNumberStart != '' ">
+                <![CDATA[  and zichan.zichan_kucun_number >= #{params.zichanKucunNumberStart}   ]]>
+            </if>
+            <if test="params.zichanKucunNumberEnd != null  and params.zichanKucunNumberEnd != '' ">
+                <![CDATA[  and zichan.zichan_kucun_number <= #{params.zichanKucunNumberEnd}   ]]>
+            </if>
+            <if test="params.zichanKucunNumber != null  and params.zichanKucunNumber != '' ">
+                and zichan.zichan_kucun_number = #{params.zichanKucunNumber}
+            </if>
+            <if test="params.zichanYuzhiStart != null  and params.zichanYuzhiStart != '' ">
+                <![CDATA[  and zichan.zichan_yuzhi >= #{params.zichanYuzhiStart}   ]]>
+            </if>
+            <if test="params.zichanYuzhiEnd != null  and params.zichanYuzhiEnd != '' ">
+                <![CDATA[  and zichan.zichan_yuzhi <= #{params.zichanYuzhiEnd}   ]]>
+            </if>
+            <if test="params.zichanYuzhi != null  and params.zichanYuzhi != '' ">
+                and zichan.zichan_yuzhi = #{params.zichanYuzhi}
+            </if>
+            <if test=" params.zichanContent != '' and params.zichanContent != null and params.zichanContent != 'null' ">
+                and zichan.zichan_content like CONCAT('%',#{params.zichanContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zichan.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zichan.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.insertTime != null and params.insertTime != ''">
+                and a.insert_time = #{params.insertTime}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
